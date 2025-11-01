@@ -11,8 +11,11 @@ class Membership:
 
     # ---------- CREATE ----------
     @staticmethod
-    def create(gym_id: int, name: str, duration_months: int, price: float, status: str = "ACTIVE"):
-        """Crea una nueva membresía activa."""
+    def create(gym_id: int, name: str, duration_months: int, price: float, status: str = "ACTIVE", current_user_roles=None):
+        """Crea una nueva membresía (solo ADMIN)."""
+        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
+            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede crear membresías.")
+
         if duration_months <= 0:
             raise ValueError("⚠️ La duración debe ser mayor a 0 meses.")
         if price < 0:
@@ -33,7 +36,7 @@ class Membership:
     # ---------- READ ----------
     @staticmethod
     def all(include_inactive: bool = False):
-        """Devuelve todas las membresías, opcionalmente incluyendo las inactivas."""
+        """Devuelve todas las membresías (los socios solo verán las activas)."""
         conn = get_connection()
         cur = conn.cursor()
         if include_inactive:
@@ -44,20 +47,13 @@ class Membership:
         conn.close()
         return rows
 
-    @staticmethod
-    def find_by_id(membership_id: int):
-        """Busca una membresía por su ID."""
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM membership WHERE id = ?", (membership_id,))
-        row = cur.fetchone()
-        conn.close()
-        return row
-
     # ---------- UPDATE ----------
     @staticmethod
-    def update(membership_id: int, name=None, duration_months=None, price=None, status=None):
-        """Actualiza los campos indicados de una membresía."""
+    def update(membership_id: int, name=None, duration_months=None, price=None, status=None, current_user_roles=None):
+        """Actualiza los campos indicados de una membresía (solo ADMIN)."""
+        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
+            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede modificar membresías.")
+
         conn = get_connection()
         cur = conn.cursor()
 
@@ -95,8 +91,11 @@ class Membership:
 
     # ---------- SOFT DELETE ----------
     @staticmethod
-    def deactivate(membership_id: int):
-        """Marca la membresía como INACTIVA (baja lógica)."""
+    def deactivate(membership_id: int, current_user_roles=None):
+        """Marca la membresía como INACTIVA (baja lógica) — solo ADMIN."""
+        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
+            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede desactivar membresías.")
+
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
