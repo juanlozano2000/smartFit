@@ -23,15 +23,17 @@ class User:
 
     @staticmethod
     def create(gym_id, full_name, phone, status="ACTIVE"):
-        """ Crear un nuevo usuario """
+        """ Crear un nuevo usuario. Devuelve el ID creado. """
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO user (gym_id, full_name, phone, status) VALUES (?, ?, ?, ?)",
             (gym_id, full_name, phone, status),
         )
+        new_id = cur.lastrowid
         conn.commit()
         conn.close()
+        return new_id
 
     @staticmethod
     def find_by_id(user_id):
