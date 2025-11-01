@@ -146,7 +146,7 @@ MIT (puede ajustarse según necesidad del curso o del cliente final).
 ## Contacto
 
 Proyecto académico para la materia de POO.
-- Autor: Juan Lozano
+- Autor: Juan Lozano, Camila Chasampi, Dante Sanchez
 - GitHub: https://github.com/juanlozano2000
 - Soporte/Consultas: abrir un Issue en este repositorio.
 
