@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     gym_id INTEGER NOT NULL,
     full_name TEXT NOT NULL,
+    dni TEXT UNIQUE NOT NULL,
     phone TEXT,
     status TEXT CHECK(status IN ('ACTIVE','INACTIVE')) DEFAULT 'ACTIVE',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -41,6 +42,17 @@ CREATE TABLE IF NOT EXISTS user_role (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
+);
+
+-------------------------------------------------------
+-- 3.5. Autenticación de usuarios (solo contraseña)
+-------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_auth (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 -------------------------------------------------------
@@ -199,3 +211,6 @@ CREATE TABLE IF NOT EXISTS trainer_assignment (
     FOREIGN KEY (trainer_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES user(id) ON DELETE CASCADE
 );
+
+
+
