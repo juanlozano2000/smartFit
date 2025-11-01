@@ -12,7 +12,7 @@ class User:
         self.status = status
 
     @staticmethod
-    def all():
+    def list_all_users():
         """ Listar todos los usuarios """
         conn = get_connection()
         cur = conn.cursor()
@@ -39,6 +39,16 @@ class User:
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM user WHERE id = ?", (user_id,))
+        user = cur.fetchone()
+        conn.close()
+        return user
+    
+    @staticmethod
+    def find_by_name(full_name):
+        """ Buscar un usuario por su nombre completo """
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM user WHERE full_name = ? AND status = 'ACTIVE'", (full_name,))
         user = cur.fetchone()
         conn.close()
         return user
