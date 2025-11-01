@@ -116,38 +116,6 @@ class Role:
         conn.commit()
         conn.close()
 
-    # ---------- USER <-> ROLE helpers ----------
-    @staticmethod
-    def assign_to_user(user_id: int, role_code: str):
-        """
-        Asigna un rol a un usuario usando la tabla user_role.
-        """
-        conn = get_connection()
-        cur = conn.cursor()
-        # Obtener role_id por code
-        cur.execute("SELECT id FROM role WHERE code = ?", (role_code.upper(),))
-        role = cur.fetchone()
-        if not role:
-            conn.close()
-            raise ValueError(f"Rol '{role_code}' no existe. Crealo primero.")
-
-        role_id = role["id"]
-        # Evitar duplicados
-        cur.execute(
-            "SELECT 1 FROM user_role WHERE user_id = ? AND role_id = ?",
-            (user_id, role_id)
-        )
-        if cur.fetchone():
-            conn.close()
-            return  # ya asignado, no hacer nada
-
-        cur.execute(
-            "INSERT INTO user_role (user_id, role_id) VALUES (?, ?)",
-            (user_id, role_id)
-        )
-        conn.commit()
-        conn.close()
-
     @staticmethod
     def remove_from_user(user_id: int, role_code: str):
         """
@@ -168,24 +136,6 @@ class Role:
         )
         conn.commit()
         conn.close()
-
-    @staticmethod
-    def get_user_roles(user_id: int):
-        """
-        Devuelve lista de códigos de rol del usuario.
-        """
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT r.code
-            FROM role r
-            JOIN user_role ur ON ur.role_id = r.id
-            WHERE ur.user_id = ?
-            ORDER BY r.code
-        """, (user_id,))
-        roles = [row["code"] for row in cur.fetchall()]
-        conn.close()
-        return roles
 
     @staticmethod
     def list_users_by_role(role_code: str):
