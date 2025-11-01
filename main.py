@@ -12,6 +12,8 @@ def main():
         # --- Usuario no logueado ---
         if not session or not session.get("user_id"):
             opt = show_public_menu()
+
+            #Iniciar sesion
             if opt == "1":
                 print("\n🔐 Iniciar sesión")
                 dni = ask_text("DNI")
@@ -23,6 +25,8 @@ def main():
                 except Exception as e:
                     print(f"\n❌ {e}")
                 input("\nPresioná Enter para continuar...")
+            
+            # Registrar nuevo usuario
             elif opt == "2":
                 print("\n📝 Registro de nuevo usuario")
                 full = ask_text("Nombre completo", min_len=3)
@@ -30,10 +34,18 @@ def main():
                 phone = ask_text("Teléfono")
                 pwd = ask_password("Contraseña (mínimo 8 caracteres)")
                 gym_id = ask_int("ID del gimnasio (por ahora 1)", min_value=1)
+                role = ask_text("Sos Profesor o Miembro?")
+                if role.upper() == "PROFESOR":
+                    role_profesor = "TRAINER"
+                else:
+                    role_profesor = "MEMBER"
+
                 try:
-                    AuthService.register(full, dni, phone, pwd, gym_id, role_code="MEMBER")
+                    AuthService.register(full, dni, phone, pwd, gym_id, role_code=role_profesor)
                 except Exception as e:
                     print(f"\n❌ {e}")
+                time.sleep(1)
+                print("✅ Muchas gracias por unirte a SmartFit.\n Ya podes iniciar sesión.")
                 input("\nPresioná Enter para continuar...")
             elif opt == "0":
                 print("\n👋 Saliendo de SmartFit... ¡Nos vemos!")
