@@ -1,4 +1,3 @@
-# models/user_role.py
 from db.connection import get_connection
 
 class UserRole:

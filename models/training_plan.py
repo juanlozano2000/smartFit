@@ -1,4 +1,3 @@
-# models/training_plan.py
 from db.connection import get_connection
 
 class TrainingPlan:

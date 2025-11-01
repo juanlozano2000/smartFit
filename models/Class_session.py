@@ -1,4 +1,3 @@
-# models/class_session.py
 from db.connection import get_connection
 
 class ClassSession:

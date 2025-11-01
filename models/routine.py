@@ -1,4 +1,3 @@
-# models/routine.py
 from db.connection import get_connection
 
 class Routine:

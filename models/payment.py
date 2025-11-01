@@ -1,4 +1,3 @@
-# models/payment.py
 from db.connection import get_connection
 
 class Payment:

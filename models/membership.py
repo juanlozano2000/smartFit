@@ -1,4 +1,3 @@
-# models/membership.py
 from db.connection import get_connection
 
 class Membership:

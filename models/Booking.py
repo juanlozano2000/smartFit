@@ -1,4 +1,3 @@
-# models/booking.py
 from db.connection import get_connection
 
 class Booking:
