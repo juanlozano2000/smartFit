@@ -53,12 +53,39 @@ class Controllers:
         elif opt == "3":
             print("\n📋 Tus planes de entrenamiento:")
             plans = TrainingService.list_plans_by_member(self.session["user_id"])
+            
+            if not plans:
+                print("\n❗ Todavía no tenés ningún plan de entrenamiento.")
+                print("\n💡 Para crear un nuevo plan, consultá con tu profesor en el gimnasio.")
+                print("   El podrá diseñar un plan personalizado según tus objetivos.")
+                return
+            
             for p in plans:
                 print(f"Plan {p['id']} - {p['goal']} ({p['start_date']} - {p['end_date']}) [{p['status']}]")
         
         elif opt == "4":
-            pid = int(input("ID del plan: "))
+            print("\n📋 Tus planes de entrenamiento:")
+            plans = TrainingService.list_plans_by_member(self.session["user_id"])
+            
+            if not plans:
+                print("\n❗ Todavía no tenés ningún plan de entrenamiento.")
+                print("\n💡 Para crear un nuevo plan, consultá con tu profesor en el gimnasio.")
+                print("   El podrá diseñar un plan personalizado según tus objetivos.")
+                return
+            
+            for p in plans:
+                print(f"Plan {p['id']} - {p['goal']} ({p['start_date']} - {p['end_date']}) [{p['status']}]")
+            
+            pid = int(input("\nIngresa el ID del plan para ver las rutinas: "))
             routines = TrainingService.list_routines_by_plan(pid)
+            
+            if not routines:
+                print("\n❗ Este plan todavía no tiene rutinas asignadas.")
+                print("\n💡 Tu profesor aún no creó las rutinas para este plan.")
+                print("   Consultale para que diseñe tus ejercicios diarios.")
+                return
+            
+            print("\n🏋️‍♂️ Tus rutinas para este plan:")
             for r in routines:
                 print(f"🗓️ Día {r['weekday']}: {r['name']} - {r['notes'] or ''}")
         
