@@ -90,12 +90,31 @@ class Controllers:
                 print(f"🗓️ Día {r['weekday']}: {r['name']} - {r['notes'] or ''}")
         
         elif opt == "5":
-            print("\nMembresías disponibles:")
+            print("\n🎯 Tu membresía actual:")
+            current = MembershipService.get_user_membership(self.session["user_id"])
+            
+            if not current:
+                print("❗ No tenés ninguna membresía activa.")
+            else:
+                print(f"📌 {current['name']} - ${current['price']} ({current['duration_months']} meses)")
+            
+            print("\n💫 Otras membresías disponibles:")
             mships = MembershipService.list_active_memberships()
+            available_mships = []
+            
             for m in mships:
-                print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses)")
-            mid = int(input("Elegí ID de membresía: "))
-            MembershipService.choose_membership(self.session["user_id"], mid, self.session["roles"])
+                # No mostrar la membresía actual del usuario
+                if not current or m['name'] != current['name']:
+                    available_mships.append(m)
+                    print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses)")
+            
+            if not available_mships:
+                print("❗ No hay otras membresías disponibles en este momento.")
+                return
+                
+            if input("\n¿Deseas cambiar tu membresía? (s/n): ").lower() == 's':
+                mid = int(input("Elegí ID de la nueva membresía: "))
+                MembershipService.choose_membership(self.session["user_id"], mid, self.session["roles"])
         
         elif opt == "6":
             print("\n💰 Tus pagos:")

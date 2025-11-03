@@ -45,7 +45,7 @@ class MembershipService:
     def choose_membership(user_id: int, membership_id: int, current_user_roles=None):
         """
         Un miembro elige/comprar una membresía.
-        - Si ya tiene una activa → error.
+        - Si ya tiene una activa → la finaliza
         - Calcula fecha de fin en base a duración.
         """
         roles = [r.upper() for r in (current_user_roles or [])]
@@ -55,22 +55,21 @@ class MembershipService:
         conn = get_connection()
         cur = conn.cursor()
 
-        # Obtener duración del plan
+        # Obtener duración del plan nuevo
         cur.execute("SELECT duration_months FROM membership WHERE id = ? AND status = 'ACTIVE'", (membership_id,))
         plan = cur.fetchone()
         if not plan:
             conn.close()
             raise ValueError("⚠️ La membresía no existe o está inactiva.")
 
-        # Validar que no tenga una activa
+        # Si tiene una membresía activa, finalizarla
         cur.execute("""
-            SELECT id FROM member_membership
+            UPDATE member_membership 
+            SET status = 'EXPIRED', end_date = CURRENT_TIMESTAMP 
             WHERE user_id = ? AND status = 'ACTIVE'
         """, (user_id,))
-        if cur.fetchone():
-            conn.close()
-            raise ValueError("⚠️ El usuario ya tiene una membresía activa.")
 
+        # Crear nueva membresía
         start_date = datetime.datetime.now()
         end_date = start_date + datetime.timedelta(days=30 * plan["duration_months"])
 
@@ -82,7 +81,7 @@ class MembershipService:
         conn.commit()
         conn.close()
 
-        print(f"✅ Membresía ID {membership_id} asignada al usuario ID {user_id} hasta {end_date.strftime('%Y-%m-%d')}.")
+        print(f"✅ Membresía cambiada exitosamente. Activa hasta {end_date.strftime('%Y-%m-%d')}.")
 
     # ---------- MEMBER / ADMIN: VER MEMBRESÍAS ----------
     @staticmethod
