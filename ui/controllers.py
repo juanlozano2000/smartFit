@@ -114,11 +114,50 @@ class Controllers:
                 
             if input("\n¿Deseas cambiar tu membresía? (s/n): ").lower() == 's':
                 mid = int(input("Elegí ID de la nueva membresía: "))
+                # Guardar el precio de la membresía elegida
+                selected_membership = next((m for m in mships if m['id'] == mid), None)
+                if not selected_membership:
+                    print("❗ ID de membresía inválido.")
+                    return
+                    
+                print("\n💳 Método de pago:")
+                print("1. CASH (Efectivo)")
+                print("2. CARD (Tarjeta)")
+                print("3. TRANSFER (Transferencia)")
+                
+                method_map = {"1": "CASH", "2": "CARD", "3": "TRANSFER"}
+                method_choice = input("\nElegí el método de pago (1-3): ")
+                if method_choice not in method_map:
+                    print("❗ Método de pago inválido.")
+                    return
+                
+                # Primero asignar la membresía
                 MembershipService.choose_membership(self.session["user_id"], mid, self.session["roles"])
+                
+                # Luego crear el pago
+                current = MembershipService.get_user_membership(self.session["user_id"])
+                if current:
+                    PaymentService.create_payment(
+                        current['id'],
+                        selected_membership['price'],
+                        method_map[method_choice],
+                        "SIGNUP",
+                        "APPROVED",
+                        self.session["roles"]
+                    )
         
         elif opt == "6":
             print("\n💰 Tus pagos:")
             rows = PaymentService.list_user_payments(self.session["user_id"])
+            
+            if not rows:
+                print("\n❗ Todavía no realizaste ningún pago.")
+                print("\n💡 Para comprar una membresía:")
+                print("   1. Volvé al menú principal")
+                print("   2. Elegí la opción 5 (Elegir / cambiar membresía)")
+                print("   3. Seleccioná el plan que prefieras y realizá el pago")
+                return
+                
             for p in rows:
                 print(f"{p['paid_at']} - ${p['amount']} [{p['status']}]")
         else:

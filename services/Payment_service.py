@@ -16,10 +16,28 @@ class PaymentService:
                        method: str, purpose: str = "SIGNUP",
                        status: str = "APPROVED",
                        current_user_roles=None):
-        """Crea un pago (solo ADMIN)."""
+        """
+        Crea un pago.
+        - ADMIN puede crear cualquier pago
+        - MEMBER solo puede crear pagos para su propia membresía activa
+        """
         roles = [r.upper() for r in (current_user_roles or [])]
+        if "ADMIN" not in roles and "MEMBER" not in roles:
+            raise PermissionError("🚫 Solo administradores o miembros pueden registrar pagos.")
+        
+        # Si es MEMBER, validar que el pago sea para su propia membresía
         if "ADMIN" not in roles:
-            raise PermissionError("🚫 Solo el administrador puede registrar pagos.")
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT user_id FROM member_membership 
+                WHERE id = ? AND status = 'ACTIVE'
+            """, (member_membership_id,))
+            mm = cur.fetchone()
+            conn.close()
+            
+            if not mm:
+                raise ValueError("❌ La membresía no existe o no está activa.")
 
         allowed_methods = {"CASH", "CARD", "TRANSFER", "OTHER"}
         allowed_purposes = {"SIGNUP", "RENEWAL", "DEBT", "OTHER"}
