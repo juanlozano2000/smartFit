@@ -7,6 +7,7 @@ from services.Payment_service import PaymentService
 from services.Report_service import ReportService
 from services.Gym import Gym
 from services.Auth_service import AuthService
+from models.Booking import Booking
 
 class Controllers:
     """
@@ -28,22 +29,39 @@ class Controllers:
             print("\n📅 Clases disponibles:")
             classes = ClassService.list_classes_for_user(self.session["gym_id"], "MEMBER")
             for c in classes:
-                print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']}) · Capacidad: {c['capacity']}")
+                print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']})")
             cid = int(input("\nElegí ID de clase para reservar: "))
             ClassService.book_class(cid, self.session["user_id"], self.session["roles"])
+
         elif opt == "2":
-            bid = int(input("\nID de reserva a cancelar: "))
-            ClassService.cancel_booking(bid, self.session["user_id"], self.session["roles"])
+            print("\n🎫 Tus clases reservadas:")
+            bookings = Booking.list_by_user(self.session["user_id"], self.session["user_id"], self.session["roles"])
+            if not bookings:
+                print("\n❗ Todavía no reservaste clases.")
+                if input("¿Deseas reservar una clase? (s/n): ").lower() == 's':
+                    self.member_actions("1")  # Redirigir a la opción de reservar
+                return
+            
+            for b in bookings:
+                if b['status'] == 'BOOKED':  # Solo mostrar las reservadas (no canceladas)
+                    print(f"{b['id']}. {b['class_name']} ({b['start_at']} - {b['end_at']})")
+            
+            if input("\n¿Deseas cancelar alguna clase? (s/n): ").lower() == 's':
+                bid = int(input("\nIngresa el ID de la reserva a cancelar: "))
+                ClassService.cancel_booking(bid, self.session["user_id"], self.session["roles"])
+
         elif opt == "3":
             print("\n📋 Tus planes de entrenamiento:")
             plans = TrainingService.list_plans_by_member(self.session["user_id"])
             for p in plans:
                 print(f"Plan {p['id']} - {p['goal']} ({p['start_date']} - {p['end_date']}) [{p['status']}]")
+        
         elif opt == "4":
             pid = int(input("ID del plan: "))
             routines = TrainingService.list_routines_by_plan(pid)
             for r in routines:
                 print(f"🗓️ Día {r['weekday']}: {r['name']} - {r['notes'] or ''}")
+        
         elif opt == "5":
             print("\nMembresías disponibles:")
             mships = MembershipService.list_active_memberships()
@@ -51,6 +69,7 @@ class Controllers:
                 print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses)")
             mid = int(input("Elegí ID de membresía: "))
             MembershipService.choose_membership(self.session["user_id"], mid, self.session["roles"])
+        
         elif opt == "6":
             print("\n💰 Tus pagos:")
             rows = PaymentService.list_user_payments(self.session["user_id"])

@@ -45,7 +45,7 @@ def show_member_menu(user_name: str) -> str:
     Menú para Miembros.
     Devuelve un código que tu controllers.py usará para despachar la acción.
     """
-    header(f"Menú Miembro · Hola, {user_name} 👋")
+    header(f"Menú Miembro · Hola, {user_name} 👋 ¿Qué deseas hacer hoy?")
     print("1) Ver y reservar clases")
     print("2) Mis reservas (ver / cancelar)")
     print("3) Ver mis planes de entrenamiento")
@@ -61,7 +61,7 @@ def show_trainer_menu(user_name: str) -> str:
     """
     Menú para Entrenadores.
     """
-    header(f"Menú Entrenador · Hola, {user_name} 🧑‍🏫")
+    header(f"Menú Entrenador · Hola, {user_name} 🧑‍🏫 ¿Qué deseas hacer hoy?")
     print("1) Mis clases (crear / listar / editar)")
     print("2) Ver reservas de una clase")
     print("3) Marcar asistencia")
@@ -78,7 +78,7 @@ def show_admin_menu(user_name: str) -> str:
     """
     Menú para Administradores.
     """
-    header(f"Menú Administrador · Hola, {user_name} 🧑‍💼")
+    header(f"Menú Administrador · Hola, {user_name} 🧑‍💼 ¿Qué deseas hacer hoy?")
     print("1) Gimnasios (listar / crear / editar / eliminar)")
     print("2) Usuarios (activar / desactivar)")
     print("3) Membresías (crear / editar / desactivar)")
