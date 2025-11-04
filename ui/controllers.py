@@ -372,11 +372,73 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "3":
-            print("\n📦 Crear nueva membresía:")
-            name = input("Nombre: ")
-            dur = int(input("Duración (meses): "))
-            price = float(input("Precio: "))
-            MembershipService.admin_create_membership(self.session["gym_id"], name, dur, price, self.session["roles"])
+            while True:
+                print("\n� Gestión de Membresías")
+                print("1. Listar membresías")
+                print("2. Crear nueva membresía")
+                print("3. Editar membresía")
+                print("4. Desactivar membresía")
+                print("5. Volver al menú principal")
+                
+                membership_opt = input("\nElegí una opción (1-5): ")
+                
+                if membership_opt == "1":
+                    print("\n📋 Lista de Membresías:")
+                    memberships = MembershipService.list_all_memberships(self.session["roles"])
+                    for m in memberships:
+                        status = "✅ Activa" if m['status'] == "ACTIVE" else "❌ Inactiva"
+                        print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses) - {status}")
+                        
+                elif membership_opt == "2":
+                    print("\n✨ Crear nueva membresía:")
+                    name = input("Nombre: ")
+                    dur = int(input("Duración (meses): "))
+                    price = float(input("Precio: "))
+                    MembershipService.admin_create_membership(self.session["gym_id"], name, dur, price, self.session["roles"])
+                    print("✅ Membresía creada exitosamente!")
+                    
+                elif membership_opt == "3":
+                    print("\n📝 Editar membresía:")
+                    memberships = MembershipService.list_all_memberships(self.session["roles"])
+                    for m in memberships:
+                        status = "✅ Activa" if m['status'] == "ACTIVE" else "❌ Inactiva"
+                        print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses) - {status}")
+                    
+                    mid = input("\nID de la membresía a editar: ")
+                    print("\nDeja en blanco para mantener el valor actual")
+                    name = input("Nuevo nombre: ")
+                    dur_str = input("Nueva duración (meses): ")
+                    price_str = input("Nuevo precio: ")
+                    
+                    # Convertir valores si no están vacíos
+                    dur = int(dur_str) if dur_str.strip() else None
+                    price = float(price_str) if price_str.strip() else None
+                    
+                    MembershipService.admin_update_membership(mid, name, dur, price, self.session["roles"])
+                    print("✅ Membresía actualizada exitosamente!")
+                    
+                elif membership_opt == "4":
+                    print("\n❌ Desactivar membresía:")
+                    memberships = MembershipService.list_active_memberships()
+                    if not memberships:
+                        print("❗ No hay membresías activas para desactivar.")
+                    else:
+                        for m in memberships:
+                            print(f"{m['id']}. {m['name']} - ${m['price']} ({m['duration_months']} meses)")
+                        
+                        mid = input("\nID de la membresía a desactivar: ")
+                        if input("¿Estás seguro? Esta acción impedirá nuevas suscripciones (s/n): ").lower() == 's':
+                            MembershipService.admin_deactivate_membership(mid, self.session["roles"])
+                            print("✅ Membresía desactivada exitosamente!")
+                    
+                elif membership_opt == "5":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "4":
             print("\n🚻 Asignar entrenador a miembro (no implementado aún).")
         elif opt == "5":

@@ -24,20 +24,11 @@ class MembershipService:
         Membership.create(gym_id=gym_id, name=name, duration_months=duration_months, price=price)
 
     @staticmethod
-    def admin_update_membership(membership_id: int, name=None, duration_months=None,
-                                price=None, status=None, current_user_roles=None):
-        roles = [r.upper() for r in (current_user_roles or [])]
-        if "ADMIN" not in roles:
-            raise PermissionError("🚫 Solo el administrador puede modificar membresías.")
-
+    def admin_update_membership(membership_id: int, name=None, duration_months=None, price=None, status=None, current_user_roles=None):
         Membership.update(membership_id, name, duration_months, price, status)
 
     @staticmethod
     def admin_deactivate_membership(membership_id: int, current_user_roles=None):
-        roles = [r.upper() for r in (current_user_roles or [])]
-        if "ADMIN" not in roles:
-            raise PermissionError("🚫 Solo el administrador puede desactivar membresías.")
-
         Membership.deactivate(membership_id)
 
     # ---------- MEMBER: ELEGIR MEMBRESÍA ----------

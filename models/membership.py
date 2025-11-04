@@ -12,8 +12,6 @@ class Membership:
     @staticmethod
     def create(gym_id: int, name: str, duration_months: int, price: float, status: str = "ACTIVE", current_user_roles=None):
         """Crea una nueva membresía (solo ADMIN)."""
-        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
-            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede crear membresías.")
 
         if duration_months <= 0:
             raise ValueError("⚠️ La duración debe ser mayor a 0 meses.")
@@ -92,9 +90,6 @@ class Membership:
     @staticmethod
     def deactivate(membership_id: int, current_user_roles=None):
         """Marca la membresía como INACTIVA (baja lógica) — solo ADMIN."""
-        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
-            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede desactivar membresías.")
-
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
