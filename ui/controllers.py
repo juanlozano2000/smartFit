@@ -208,10 +208,60 @@ class Controllers:
     # ========== ADMIN ==========
     def admin_actions(self, opt: str):
         if opt == "1":
-            print("\n🏋️‍♂️ Gimnasios:")
-            gyms = Gym.all(self.session["roles"])
-            for g in gyms:
-                print(f"{g['id']}. {g['name']} - {g['address'] or ''}")
+            while True:
+                print("\n🏋️‍♂️ Gestión de Gimnasios")
+                print("1. Listar gimnasios")
+                print("2. Crear nuevo gimnasio")
+                print("3. Editar gimnasio")
+                print("4. Eliminar gimnasio")
+                print("5. Volver al menú principal")
+                
+                gym_opt = input("\nElegí una opción (1-5): ")
+                
+                if gym_opt == "1":
+                    print("\n📋 Lista de Gimnasios:")
+                    gyms = Gym.all(self.session["roles"])
+                    for g in gyms:
+                        print(f"{g['id']}. {g['name']} - {g['address'] or ''}")
+                        
+                elif gym_opt == "2":
+                    print("\n✨ Crear nuevo gimnasio:")
+                    name = input("Nombre: ")
+                    address = input("Dirección: ")
+                    Gym.create(name, address, self.session["roles"])
+                    print("✅ Gimnasio creado exitosamente!")
+                    
+                elif gym_opt == "3":
+                    print("\n📝 Editar gimnasio:")
+                    gyms = Gym.all(self.session["roles"])
+                    for g in gyms:
+                        print(f"{g['id']}. {g['name']} - {g['address'] or ''}")
+                    
+                    gid = input("\nID del gimnasio a editar: ")
+                    name = input("Nuevo nombre (Enter para mantener): ")
+                    address = input("Nueva dirección (Enter para mantener): ")
+                    Gym.update(gid, name, address, self.session["roles"])
+                    print("✅ Gimnasio actualizado exitosamente!")
+                    
+                elif gym_opt == "4":
+                    print("\n❌ Eliminar gimnasio:")
+                    gyms = Gym.all(self.session["roles"])
+                    for g in gyms:
+                        print(f"{g['id']}. {g['name']} - {g['address'] or ''}")
+                    
+                    gid = input("\nID del gimnasio a eliminar: ")
+                    if input("¿Estás seguro? Esta acción no se puede deshacer (s/n): ").lower() == 's':
+                        Gym.delete(gid, self.session["roles"])
+                        print("✅ Gimnasio eliminado exitosamente!")
+                    
+                elif gym_opt == "5":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "2":
             uid = int(input("ID de usuario a desactivar: "))
             AuthService.deactivate_user(uid, self.session["roles"])
