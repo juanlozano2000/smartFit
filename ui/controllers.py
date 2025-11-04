@@ -6,7 +6,7 @@ from services.Training_service import TrainingService
 from services.Payment_service import PaymentService
 from services.Report_service import ReportService
 from services.Gym import Gym
-from services.Auth_service import AuthService
+from models.User import User
 from models.Booking import Booking
 
 class Controllers:
@@ -263,8 +263,114 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "2":
-            uid = int(input("ID de usuario a desactivar: "))
-            AuthService.deactivate_user(uid, self.session["roles"])
+            while True:
+                print("\n👥 Gestión de Usuarios")
+                print("1. Listar todos los usuarios")
+                print("2. Listar usuarios activos")
+                print("3. Listar usuarios inactivos")
+                print("4. Re-Activar usuario")
+                print("5. Desactivar usuario")
+                print("6. Volver al menú principal")
+                
+                user_opt = input("\nElegí una opción (1-6): ")
+                
+                if user_opt == "1":
+                    print("\n📋 Lista de todos los usuarios:")
+                    users = User.list_all_users()
+                    for u in users:
+                        status = "✅ Activo" if u['status'] == "ACTIVE" else "❌ Inactivo"
+                        roles = u['roles'].split(',') if u['roles'] else ["NO-ROLE"]
+                        role_icons = []
+                        for role in roles:
+                            if role == "Miembro":
+                                role_icons.append("👤")
+                            elif role == "Entrenador":
+                                role_icons.append("🏋️‍♂️")
+                            elif role == "Administrador":
+                                role_icons.append("👑")
+                            elif role == "NO-ROLE":
+                                role_icons.append("❓")
+                        role_display = " ".join([f"{icon} {role}" for icon, role in zip(role_icons, roles)])
+                        print(f"{u['id']}. {u['full_name']} - {role_display} - {status}")
+                        
+                elif user_opt == "2":
+                    print("\n📋 Usuarios activos:")
+                    users = User.list_active_users()
+                    if not users:
+                        print("❗ No hay usuarios activos.")
+                    else:
+                        for u in users:
+                            roles = u['roles'].split(',') if u['roles'] else ["NO-ROLE"]
+                            role_icons = []
+                            for role in roles:
+                                if role == "Miembro":
+                                    role_icons.append("👤")
+                                elif role == "Entrenador":
+                                    role_icons.append("🏋️‍♂️")
+                                elif role == "Administrador":
+                                    role_icons.append("👑")
+                                elif role == "NO-ROLE":
+                                    role_icons.append("❓")
+                            role_display = " ".join([f"{icon} {role}" for icon, role in zip(role_icons, roles)])
+                            print(f"{u['id']}. {u['full_name']} - {role_display}")
+                            
+                elif user_opt == "3":
+                    print("\n📋 Usuarios inactivos:")
+                    users = User.list_inactive_users()
+                    if not users:
+                        print("❗ No hay usuarios inactivos.")
+                    else:
+                        for u in users:
+                            roles = u['roles'].split(',') if u['roles'] else ["NO-ROLE"]
+                            role_icons = []
+                            for role in roles:
+                                if role == "Miembro":
+                                    role_icons.append("👤")
+                                elif role == "Entrenador":
+                                    role_icons.append("🏋️‍♂️")
+                                elif role == "Administrador":
+                                    role_icons.append("👑")
+                                elif role == "NO-ROLE":
+                                    role_icons.append("❓")
+                            role_display = " ".join([f"{icon} {role}" for icon, role in zip(role_icons, roles)])
+                            print(f"{u['id']}. {u['full_name']} - {role_display}")
+                            
+                elif user_opt == "4":
+                    print("\n✨ Activar usuario:")
+                    users = User.list_inactive_users()
+                    if not users:
+                        print("❗ No hay usuarios inactivos para activar.")
+                    else:
+                        for u in users:
+                            print(f"{u['id']}. {u['full_name']}")
+                        uid = int(input("\nID del usuario a activar: "))
+                        User.activate(uid)
+                        print("✅ Usuario activado exitosamente!")
+                        
+                elif user_opt == "5":
+                    print("\n❌ Desactivar usuario:")
+                    users = User.list_active_users()
+                    if not users:
+                        print("❗ No hay usuarios activos para desactivar.")
+                    else:
+                        for u in users:
+                            print(f"{u['id']}. {u['full_name']}")
+                        uid = int(input("\nID del usuario a desactivar: "))
+                        if uid == self.session["user_id"]:
+                            print("❗ No puedes desactivar tu propio usuario")
+                        else:
+                            if input("¿Estás seguro? Esta acción deshabilitará el acceso del usuario (s/n): ").lower() == 's':
+                                User.deactivate(uid)
+                                print("✅ Usuario desactivado exitosamente!")
+                                
+                elif user_opt == "6":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "3":
             print("\n📦 Crear nueva membresía:")
             name = input("Nombre: ")

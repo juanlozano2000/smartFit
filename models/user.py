@@ -13,10 +13,17 @@ class User:
 
     @staticmethod
     def list_all_users():
-        """ Listar todos los usuarios """
+        """ Listar todos los usuarios con sus roles """
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM user")
+        cur.execute("""
+            SELECT u.id, u.full_name, u.status, 
+                   GROUP_CONCAT(DISTINCT r.name) as roles
+            FROM user u
+            LEFT JOIN user_role ur ON u.id = ur.user_id
+            LEFT JOIN role r ON ur.role_id = r.id
+            GROUP BY u.id, u.full_name, u.status
+        """)
         users = cur.fetchall()
         conn.close()
         return users
@@ -54,6 +61,40 @@ class User:
         user = cur.fetchone()
         conn.close()
         return user
+    
+    def list_active_users():
+        """ Listar todos los usuarios activos con sus roles """
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT u.id, u.full_name, u.status,
+                   GROUP_CONCAT(DISTINCT r.name) as roles
+            FROM user u
+            LEFT JOIN user_role ur ON u.id = ur.user_id
+            LEFT JOIN role r ON ur.role_id = r.id
+            WHERE u.status = 'ACTIVE'
+            GROUP BY u.id, u.full_name, u.status
+        """)
+        users = cur.fetchall()
+        conn.close()
+        return users
+    
+    def list_inactive_users():
+        """ Listar todos los usuarios inactivos con sus roles """
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT u.id, u.full_name, u.status,
+                   GROUP_CONCAT(DISTINCT r.name) as roles
+            FROM user u
+            LEFT JOIN user_role ur ON u.id = ur.user_id
+            LEFT JOIN role r ON ur.role_id = r.id
+            WHERE u.status = 'INACTIVE'
+            GROUP BY u.id, u.full_name, u.status
+        """)
+        users = cur.fetchall()
+        conn.close()
+        return users
 
     
     @staticmethod
@@ -100,3 +141,18 @@ class User:
         conn.commit()
         conn.close()
         print("🟡 Usuario marcado como INACTIVO (baja lógica).")
+
+
+    def activate(user_id):        
+        """ Rehabilitar un usuario (marca como ACTIVE) """
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE user
+            SET status = 'ACTIVE',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (user_id,))
+        conn.commit()
+        conn.close()
+        print("🟢 Usuario marcado como ACTIVO (rehabilitado).")
