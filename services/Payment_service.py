@@ -152,7 +152,7 @@ class PaymentService:
         cur = conn.cursor()
         cur.execute("""
             UPDATE payment
-            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            SET status = ?, paid_at = CURRENT_TIMESTAMP
             WHERE id = ?
         """, (new_status.upper(), payment_id))
         conn.commit()

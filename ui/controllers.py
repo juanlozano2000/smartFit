@@ -1,5 +1,3 @@
-# ui/controllers.py
-
 from services.Membership_Service import MembershipService
 from services.Class_service import ClassService
 from services.Training_service import TrainingService
@@ -513,10 +511,126 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "5":
-            mmid = int(input("ID member_membership: "))
-            amount = float(input("Monto: "))
-            method = input("Método (CASH/CARD/TRANSFER): ").upper()
-            PaymentService.create_payment(mmid, amount, method, "SIGNUP", "APPROVED", self.session["roles"])
+            while True:
+                print("\n💰 Gestión de Pagos")
+                print("1. Listar todos los pagos")
+                print("2. Registrar nuevo pago")
+                print("3. Actualizar estado de pago")
+                print("4. Volver al menú principal")
+                
+                payment_opt = input("\nElegí una opción (1-4): ")
+                
+                if payment_opt == "1":
+                    print("\n📋 Lista de todos los pagos:")
+                    payments = PaymentService.list_all_payments(self.session["roles"])
+                    if not payments:
+                        print("❗ No hay pagos registrados.")
+                    else:
+                        for p in payments:
+                            status_icon = "✅" if p['status'] == "APPROVED" else "⏳" if p['status'] == "PENDING" else "❌"
+                            print(f"{p['id']}. {p['member_name']} - ${p['amount']} - {p['method']} - {status_icon} {p['status']}")
+                
+                elif payment_opt == "2":
+                    print("\n✨ Registrar nuevo pago:")
+                    
+                    # Listar miembros activos con membresías activas
+                    print("\n👤 Membresías activas:")
+                    memberships = MembershipService.list_active_memberships()
+                    if not memberships:
+                        print("❗ No hay membresías activas.")
+                        continue
+                        
+                    for m in memberships:
+                        print(f"{m['id']}. - {m['name']} (${m['price']})")
+                    
+                    mmid = int(input("\nID de la membresía: "))
+                    amount = float(input("Monto: $"))
+                    
+                    print("\n💳 Método de pago:")
+                    print("1. CASH (Efectivo)")
+                    print("2. CARD (Tarjeta)")
+                    print("3. TRANSFER (Transferencia)")
+                    
+                    method_map = {"1": "CASH", "2": "CARD", "3": "TRANSFER"}
+                    method_choice = input("\nElegí el método de pago (1-3): ")
+                    
+                    if method_choice not in method_map:
+                        print("❗ Método de pago inválido.")
+                        continue
+                    
+                    print("\n🎯 Motivo del pago:")
+                    print("1. SIGNUP (Nueva suscripción)")
+                    print("2. RENEWAL (Renovación)")
+                    print("3. DEBT (Deuda pendiente)")
+                    print("4. OTHER (Otro)")
+                    
+                    purpose_map = {
+                        "1": "SIGNUP",
+                        "2": "RENEWAL",
+                        "3": "DEBT",
+                        "4": "OTHER"
+                    }
+                    purpose_choice = input("\nElegí el motivo (1-4): ")
+                    
+                    if purpose_choice not in purpose_map:
+                        print("❗ Motivo inválido.")
+                        continue
+                    
+                    print("\n📊 Estado inicial del pago:")
+                    print("1. APPROVED (Aprobado)")
+                    print("2. PENDING (Pendiente)")
+                    
+                    status_map = {"1": "APPROVED", "2": "PENDING"}
+                    status_choice = input("\nElegí el estado (1-2): ")
+                    
+                    if status_choice not in status_map:
+                        print("❗ Estado inválido.")
+                        continue
+                    
+                    PaymentService.create_payment(
+                        mmid,
+                        amount,
+                        method_map[method_choice],
+                        purpose_map[purpose_choice],
+                        status_map[status_choice],
+                        self.session["roles"]
+                    )
+                    print("✅ Pago registrado exitosamente!")
+                
+                elif payment_opt == "3":
+                    print("\n🔄 Actualizar estado de pago pendiente:")
+                    print("\nPagos pendientes:")
+                    pending = PaymentService.list_pending_payments()
+                    if not pending:
+                        print("❗ No hay pagos pendientes para actualizar.")
+                        continue
+                        
+                    for p in pending:
+                        print(f"{p['id']}. {p['full_name']} - ${p['amount']} - {p['method']} ({p['purpose']})")
+                    
+                    pid = int(input("\nID del pago a actualizar: "))
+                    print("\nNuevo estado:")
+                    print("1. APPROVED (Aprobar pago)")
+                    print("2. REJECTED (Rechazar pago)")
+                    
+                    status_map = {"1": "APPROVED", "2": "REJECTED"}
+                    status_choice = input("\nElegí el nuevo estado (1-2): ")
+                    
+                    if status_choice not in status_map:
+                        print("❗ Estado inválido.")
+                        continue
+                    
+                    PaymentService.update_status(pid, status_map[status_choice], self.session["roles"])
+                    print("✅ Estado del pago actualizado exitosamente!")
+                
+                elif payment_opt == "4":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "6":
             print("\nClases disponibles:")
             rows = ClassService.list_classes_for_user(self.session["gym_id"], "ADMIN")

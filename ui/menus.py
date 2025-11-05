@@ -83,7 +83,7 @@ def show_admin_menu(user_name: str) -> str:
     print("2) Usuarios (listar / crear / editar / desactivar)")
     print("3) Membresías (crear / editar / desactivar)")
     print("4) Asignar entrenador a miembro")
-    print("5) Pagos (registrar / aprobar / listar)")
+    print("5) Pagos (registrar / listar)")
     print("6) Clases (crear / listar / editar / eliminar)")
     print("7) Reportes (generar / listar)")
     print("9) Cerrar sesión")
