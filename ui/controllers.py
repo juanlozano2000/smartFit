@@ -299,13 +299,78 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "3":
-            bid = int(input("ID de reserva: "))
-            pres = input("¿Asistió? (s/n): ").lower() == "s"
-            ClassService.mark_attendance(bid, pres, self.session["roles"])
+            while True:
+                print("\n✅ Control de Asistencias")
+                print("\nTus clases disponibles:")
+                print("\nAquí iría la lógica para marcar asistencia (similar a la opción 2)")
+                
         elif opt == "4":
-            mid = int(input("ID del miembro: "))
-            goal = input("Objetivo: ")
-            TrainingService.create_plan(self.session["user_id"], mid, goal, current_user_roles=self.session["roles"])
+            while True:
+                print("\n🏋️‍♂️ Gestión de Planes de Entrenamiento")
+                print("\n👥 Lista de miembros disponibles:")
+                members = User.list_users_by_role("Miembro", self.session["gym_id"])
+                
+                if not members:
+                    print("❗ No hay miembros disponibles para asignar planes.")
+                    input("\nPresiona Enter para volver...")
+                    break
+                
+                for m in members:
+                    # Obtener planes activos del miembro
+                    plans = TrainingService.list_plans_by_member(m['id'])
+                    plan_status = "✅ Con plan activo" if any(p['status'] == 'ACTIVE' for p in plans) else "❌ Sin plan"
+                    print(f"{m['id']}. {m['full_name']} - {plan_status}")
+                
+                print("\nOpciones:")
+                print("1. Crear nuevo plan")
+                print("2. Volver al menú principal")
+                
+                plan_opt = input("\nElegí una opción (1-2): ")
+                
+                if plan_opt == "1":
+                    try:
+                        mid = int(input("\nID del miembro: "))
+                        # Verificar que el miembro exista
+                        member_exists = any(m['id'] == mid for m in members)
+                        
+                        if not member_exists:
+                            print("❗ ID de miembro inválido")
+                            continue
+                        
+                        # Obtener el nombre del miembro para mostrar en el resumen
+                        member_name = next(m['full_name'] for m in members if m['id'] == mid)
+                        
+                        print("\n📝 Crear plan de entrenamiento")
+                        goal = input("Objetivo del plan: ").strip()
+                        if not goal:
+                            print("❗ El objetivo es obligatorio")
+                            continue
+                        
+                        print("\n📋 Resumen del plan:")
+                        print(f"Miembro: {member_name}")
+                        print(f"Objetivo: {goal}")
+                        
+                        if input("\n¿Confirmar la creación del plan? (s/n): ").lower() == 's':
+                            TrainingService.create_plan(
+                                self.session["user_id"], 
+                                mid, 
+                                goal, 
+                                current_user_roles=self.session["roles"]
+                            )
+                            print("✅ Plan creado exitosamente!")
+                            print("\n💡 Recordá agregar rutinas al plan desde la opción 5 del menú principal")
+                            
+                    except ValueError:
+                        print("❗ El ID debe ser un número")
+                        
+                elif plan_opt == "2":
+                    break
+                    
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "5":
             pid = int(input("ID del plan: "))
             name = input("Nombre de rutina: ")
