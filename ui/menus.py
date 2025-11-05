@@ -62,7 +62,7 @@ def show_trainer_menu(user_name: str) -> str:
     Menú para Entrenadores.
     """
     header(f"Menú Entrenador · Hola, {user_name} 🧑‍🏫 ¿Qué deseas hacer hoy?")
-    print("1) Mis clases (crear / listar / editar)")
+    print("1) Mis clases (crear / listar)")
     print("2) Ver reservas de una clase")
     print("3) Marcar asistencia")
     print("4) Crear plan para un miembro")

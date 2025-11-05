@@ -247,11 +247,57 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "2":
-            cid = int(input("ID de clase: "))
-            rows = ClassService.list_attendance_by_class(cid)
-            for r in rows:
-                estado = "✅ Presente" if r["present"] else "❌ Ausente"
-                print(f"{r['member_name']} - {estado} ({r['checked_at']})")
+            while True:
+                print("\n📋 Control de Asistencias")
+                print("\nTus clases disponibles:")
+                classes = ClassService.list_classes_by_trainer(self.session["user_id"])
+                
+                if not classes:
+                    print("❗ No tenés clases asignadas.")
+                    input("\nPresiona Enter para volver...")
+                    break
+                    
+                for c in classes:
+                    print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']})")
+                    print(f"   📍 Sala: {c['room']}")
+                
+                print("\nOpciones:")
+                print("1. Ver asistencia de una clase")
+                print("2. Volver al menú principal")
+                
+                att_opt = input("\nElegí una opción (1-2): ")
+                
+                if att_opt == "1":
+                    try:
+                        cid = int(input("\nIngresá el ID de la clase: "))
+                        # Verificar que la clase exista y pertenezca al profesor
+                        class_exists = any(c['id'] == cid for c in classes)
+                        
+                        if not class_exists:
+                            print("❗ ID de clase inválido o no te pertenece")
+                            continue
+                            
+                        print("\n📊 Lista de asistencias:")
+                        rows = ClassService.list_attendance_by_class(cid)
+                        
+                        if not rows:
+                            print("❗ No hay registros de asistencia para esta clase")
+                        else:
+                            for r in rows:
+                                estado = "✅ Presente" if r["present"] else "❌ Ausente"
+                                print(f"{r['member_name']} - {estado} ({r['checked_at']})")
+                                
+                    except ValueError:
+                        print("❗ El ID debe ser un número")
+                        
+                elif att_opt == "2":
+                    break
+                    
+                else:
+                    print("⚠️ Opción no válida")
+                    
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "3":
             bid = int(input("ID de reserva: "))
             pres = input("¿Asistió? (s/n): ").lower() == "s"
