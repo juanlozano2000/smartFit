@@ -24,8 +24,6 @@ class TrainerAssignment:
         - Un miembro solo puede tener 1 asignación activa.
         """
         roles = [r.upper() for r in (current_user_roles or [])]
-        if "ADMIN" not in roles:
-            raise PermissionError("🚫 Solo el administrador puede asignar entrenadores.")
 
         if status.upper() not in ("ACTIVE", "ENDED"):
             raise ValueError("⚠️ Estado inválido. Use 'ACTIVE' o 'ENDED'.")
@@ -103,6 +101,21 @@ class TrainerAssignment:
             conn.close()
             raise PermissionError("🚫 Rol no autorizado.")
 
+        rows = cur.fetchall()
+        conn.close()
+        return rows
+    
+    def list_active_assignments_for_trainer(trainer_id: int):
+        """Lista las asignaciones activas de un entrenador específico."""
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT ta.id, m.full_name AS member, ta.start_date, ta.end_date
+            FROM trainer_assignment ta
+            JOIN user m ON m.id = ta.member_id
+            WHERE ta.trainer_id = ? AND ta.status = 'ACTIVE'
+            ORDER BY ta.start_date DESC
+        """, (trainer_id,))
         rows = cur.fetchall()
         conn.close()
         return rows

@@ -8,6 +8,7 @@ from services.Report_service import ReportService
 from services.Gym import Gym
 from models.User import User
 from models.Booking import Booking
+from models.Trainer_assigment import TrainerAssignment
 
 class Controllers:
     """
@@ -440,7 +441,77 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "4":
-            print("\n🚻 Asignar entrenador a miembro (no implementado aún).")
+            while True:
+                print("\n🚻 Gestión de Asignaciones de Entrenadores")
+                print("1. Ver asignaciones actuales")
+                print("2. Asignar entrenador a miembro")
+                print("3. Modificar asignación")
+                print("4. Eliminar asignación")
+                print("5. Volver al menú principal")
+                
+                assign_opt = input("\nElegí una opción (1-5): ")
+                
+                if assign_opt == "1":
+                    print("\n📋 Asignaciones actuales:")
+                    assignments = TrainerAssignment.list_all_assignments(self.session["user_id"], self.session["roles"])
+                    if not assignments:
+                        print("❗ No hay asignaciones registradas.")
+                    else:
+                        for a in assignments:
+                            status = "✅ Activa" if a['status'] == "ACTIVE" else "❌ Inactiva"
+                            print(f"{a['id']}. 🏋️‍♂️ {a['trainer']} → 👤 {a['member']} - {status}")
+                
+                elif assign_opt == "2":
+                    print("\n✨ Nueva asignación:")
+                    print("\n👤 Lista de miembros disponibles:")
+                    members = User.list_users_by_role("Miembro", self.session["gym_id"])
+                    if not members:
+                        print("❗ No hay miembros disponibles.")
+                        continue
+                    for m in members:
+                        print(f"{m['id']}. {m['full_name']}")
+                    
+                    mid = int(input("\nID del miembro: "))
+                    
+                    print("\n🏋️‍♂️ Lista de entrenadores disponibles:")
+                    trainers = User.list_users_by_role("Entrenador", self.session["gym_id"])
+                    if not trainers:
+                        print("❗ No hay entrenadores disponibles.")
+                        continue
+                    for t in trainers:
+                        print(f"{t['id']}. {t['full_name']}")
+                    
+                    tid = int(input("\nID del entrenador: "))
+                    TrainerAssignment.assign(tid, mid, self.session["gym_id"])
+                    print("✅ Entrenador asignado exitosamente!")
+                
+                elif assign_opt == "3":
+                    print("\n📝 Modificar asignación:")
+                    print("Aún esta seccion no esta lista! Pronto lo estará.")
+                
+                elif assign_opt == "4":
+                    print("\n❌ Eliminar asignación:")
+                    assignments = TrainerAssignment.list_active_assignments_for_trainer(self.session["user_id"])
+                    if not assignments:
+                        print("❗ No hay asignaciones activas para eliminar.")
+                        continue
+                        
+                    for a in assignments:
+                        print(f"{a['id']}. 🏋️‍♂️ {a['trainer_name']} → 👤 {a['member_name']}")
+                    
+                    aid = int(input("\nID de la asignación a eliminar: "))
+                    if input("¿Estás seguro? Esta acción finalizará la asignación (s/n): ").lower() == 's':
+                        TrainerAssignment.delete(aid)
+                        print("✅ Asignación eliminada exitosamente!")
+                
+                elif assign_opt == "5":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "5":
             mmid = int(input("ID member_membership: "))
             amount = float(input("Monto: "))

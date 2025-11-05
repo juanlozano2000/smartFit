@@ -78,6 +78,24 @@ class User:
         users = cur.fetchall()
         conn.close()
         return users
+
+    @staticmethod
+    def list_users_by_role(role_name, gym_id):
+        """ Listar todos los usuarios activos con un rol específico en un gimnasio """
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT u.id, u.full_name, u.status,
+                   GROUP_CONCAT(DISTINCT r.name) as roles
+            FROM user u
+            JOIN user_role ur ON u.id = ur.user_id
+            JOIN role r ON ur.role_id = r.id
+            WHERE r.name = ? AND u.gym_id = ? AND u.status = 'ACTIVE'
+            GROUP BY u.id, u.full_name, u.status
+        """, (role_name, gym_id))
+        users = cur.fetchall()
+        conn.close()
+        return users
     
     def list_inactive_users():
         """ Listar todos los usuarios inactivos con sus roles """
