@@ -18,12 +18,8 @@ class ClassService:
     @staticmethod
     def create_class(gym_id: int, trainer_id: int, name: str,
                      start_at: str, end_at: str, capacity: int,
-                     room: str | None = None, current_user_roles=None):
+                     room: str | None = None):
         """Crear una clase (solo ADMIN o TRAINER)."""
-        roles = [r.upper() for r in (current_user_roles or [])]
-        if not any(r in roles for r in ("ADMIN", "TRAINER")):
-            raise PermissionError("🚫 Solo administradores o entrenadores pueden crear clases.")
-
         if not name.strip():
             raise ValueError("⚠️ El nombre de la clase no puede estar vacío.")
         if capacity <= 0:
@@ -52,6 +48,20 @@ class ClassService:
                 WHERE c.gym_id = ?
                 ORDER BY c.start_at ASC
             """, (gym_id,))
+        rows = cur.fetchall()
+        conn.close()
+        return rows
+
+    def list_classes_by_trainer(trainer_id: int):
+        """Lista clases por entrenador."""
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT c.id, c.name, c.start_at, c.end_at, c.capacity, c.room
+            FROM class c
+            WHERE c.trainer_id = ?
+            ORDER BY c.start_at ASC
+        """, (trainer_id,))
         rows = cur.fetchall()
         conn.close()
         return rows

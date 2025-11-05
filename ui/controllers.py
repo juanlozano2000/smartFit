@@ -165,13 +165,87 @@ class Controllers:
     # ========== TRAINER ==========
     def trainer_actions(self, opt: str):
         if opt == "1":
-            print("\n📚 Crear nueva clase:")
-            name = input("Nombre: ")
-            start = input("Inicio (YYYY-MM-DD HH:MM): ")
-            end = input("Fin (YYYY-MM-DD HH:MM): ")
-            capacity = int(input("Capacidad: "))
-            room = input("Sala: ")
-            ClassService.create_class(self.session["gym_id"], self.session["user_id"], name, start, end, capacity, room, self.session["roles"])
+            while True:
+                print("\n📚 Gestión de Clases")
+                print("1. Listar mis clases")
+                print("2. Ver todas las clases")
+                print("3. Crear nueva clase")
+                print("4. Volver al menú principal")
+                
+                class_opt = input("\nElegí una opción (1-4): ")
+                
+                if class_opt == "1":
+                    print("\n📋 Mis clases:")
+                    classes = ClassService.list_classes_by_trainer(self.session["user_id"])
+                    if not classes:
+                        print("❗ No tenés clases asignadas.")
+                    else:
+                        for c in classes:
+                            print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']})")
+                            print(f"   📍 Sala: {c['room']}")
+                            print(f"   👥 Capacidad: {c['capacity']} personas")
+                
+                elif class_opt == "2":
+                    print("\n📋 Todas las clases del gimnasio:")
+                    classes = ClassService.list_classes_for_user(self.session["gym_id"], "TRAINER")
+                    if not classes:
+                        print("❗ No hay clases registradas.")
+                    else:
+                        for c in classes:
+                            trainer = "👤 Tú" if c['trainer_id'] == self.session["user_id"] else f"👤 {c['trainer_name']}"
+                            print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']})")
+                            print(f"   📍 Sala: {c['room']} - {trainer}")
+                
+                elif class_opt == "3":
+                    print("\n✨ Crear nueva clase:")
+                    name = input("Nombre: ").strip()
+                    if not name:
+                        print("❗ El nombre es obligatorio")
+                        continue
+                        
+                    try:
+                        start = input("Inicio (YYYY-MM-DD HH:MM): ").strip()
+                        end = input("Fin (YYYY-MM-DD HH:MM): ").strip()
+                        
+                        try:
+                            capacity = int(input("Capacidad (número de alumnos): "))
+                            if capacity <= 0:
+                                print("❗ La capacidad debe ser mayor a 0")
+                                continue
+                        except ValueError:
+                            print("❗ La capacidad debe ser un número")
+                            continue
+                            
+                        room = input("Sala: ").strip()
+                        if not room:
+                            print("❗ La sala es obligatoria")
+                            continue
+                        
+                        print("\n📝 Resumen de la clase:")
+                        print(f"Nombre: {name}")
+                        print(f"Inicio: {start}")
+                        print(f"Fin: {end}")
+                        print(f"Capacidad: {capacity}")
+                        print(f"Sala: {room}")
+                        
+                        if input("\n¿Confirmar la creación de la clase? (s/n): ").lower() == 's':
+                            ClassService.create_class(
+                                self.session["gym_id"], 
+                                self.session["user_id"], 
+                                name, start, end, capacity, room
+                            )
+                            print("✅ Clase creada exitosamente!")
+                    except Exception as e:
+                        print(f"❗ Error: {str(e)}")
+                
+                elif class_opt == "4":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         elif opt == "2":
             cid = int(input("ID de clase: "))
             rows = ClassService.list_attendance_by_class(cid)

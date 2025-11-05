@@ -25,9 +25,6 @@ class ClassSession:
         is_admin = "ADMIN" in roles
         is_trainer = "TRAINER" in roles
 
-        if not (is_admin or is_trainer):
-            raise PermissionError("🚫 Solo entrenadores o administradores pueden crear clases.")
-
         if start_at >= end_at:
             raise ValueError("⚠️ La hora de inicio debe ser anterior a la de fin.")
         if capacity <= 0:
