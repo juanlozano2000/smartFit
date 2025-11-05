@@ -372,20 +372,94 @@ class Controllers:
                 input("\nPresiona Enter para continuar...")
                 
         elif opt == "5":
-            pid = int(input("ID del plan: "))
-            name = input("Nombre de rutina: ")
-            day = int(input("Día (1-Lun ... 7-Dom): "))
-            notes = input("Notas: ")
-            TrainingService.add_routine(pid, name, day, notes, self.session["roles"])
+            print("\n🏋️‍♂️ Planes de entrenamiento disponibles:")
+            plans = TrainingService.list_plans_by_trainer(self.session["user_id"])
+            
+            if not plans:
+                print("❗ No tenés planes de entrenamiento asignados.")
+                input("\nPresiona Enter para volver...")
+                return
+            
+            for p in plans:
+                print(f"Plan {p['id']} → {p['member_name']} | {p['goal']} [{p['status']}]")
+                
+                # Mostrar rutinas existentes del plan
+                routines = TrainingService.list_routines_by_plan(p['id'])
+                if routines:
+                    print("   📋 Rutinas actuales:")
+                    for r in routines:
+                        print(f"   Día {r['weekday']}: {r['name']} - {r['notes'] or ''}")
+                else:
+                    print("   ❗ Este plan aún no tiene rutinas asignadas")
+                print()  # Línea en blanco para separar planes
+            
+            try:
+                pid = int(input("\nID del plan para agregar rutina: "))
+                # Verificar que el plan exista y pertenezca al entrenador
+                if not any(p['id'] == pid for p in plans):
+                    print("❗ ID de plan inválido o no te pertenece")
+                    return
+                    
+                name = input("Nombre de rutina: ").strip()
+                if not name:
+                    print("❗ El nombre es obligatorio")
+                    return
+                
+                day = int(input("Día (1-Lun ... 7-Dom): "))
+                if day < 1 or day > 7:
+                    print("❗ El día debe estar entre 1 y 7")
+                    return
+                    
+                notes = input("Notas: ")
+                
+                print("\n📋 Resumen de la rutina:")
+                print(f"Plan: {pid}")
+                print(f"Nombre: {name}")
+                print(f"Día: {day}")
+                print(f"Notas: {notes}")
+                
+                if input("\n¿Confirmar la creación de la rutina? (s/n): ").lower() == 's':
+                    TrainingService.add_routine(pid, name, day, notes, self.session["roles"])
+                    print("✅ Rutina agregada exitosamente!")
+                    
+            except ValueError:
+                print("❗ El ID del plan y el día deben ser números")
         elif opt == "6":
             plans = TrainingService.list_plans_by_trainer(self.session["user_id"])
             for p in plans:
                 print(f"Plan {p['id']} → {p['member_name']} | {p['goal']} [{p['status']}]")
+                
         elif opt == "7":
-            pid = int(input("ID del plan: "))
-            routines = TrainingService.list_routines_by_plan(pid)
-            for r in routines:
-                print(f"{r['weekday']} - {r['name']} ({r['notes'] or ''})")
+            print("\n🏋️‍♂️ Tus planes de entrenamiento:")
+            plans = TrainingService.list_plans_by_trainer(self.session["user_id"])
+            
+            if not plans:
+                print("❗ No tenés planes de entrenamiento asignados.")
+                input("\nPresiona Enter para volver...")
+                return
+            
+            for p in plans:
+                print(f"Plan {p['id']} → {p['member_name']} | {p['goal']} [{p['status']}]")
+            
+            try:
+                pid = int(input("\nIngresa el ID del plan para ver las rutinas: "))
+                # Verificar que el plan exista y pertenezca al entrenador
+                if not any(p['id'] == pid for p in plans):
+                    print("❗ ID de plan inválido o no te pertenece")
+                    return
+                
+                routines = TrainingService.list_routines_by_plan(pid)
+                if not routines:
+                    print("\n❗ Este plan todavía no tiene rutinas asignadas.")
+                    print("💡 Podés crear rutinas desde la opción 5 del menú principal")
+                    return
+                
+                print("\n🏋️‍♂️ Rutinas del plan:")
+                for r in routines:
+                    print(f"🗓️ Día {r['weekday']}: {r['name']} - {r['notes'] or ''}")
+                    
+            except ValueError:
+                print("❗ El ID del plan debe ser un número")
         else:
             print("⚠️ Opción no reconocida.")
 

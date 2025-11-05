@@ -98,9 +98,6 @@ class TrainingService:
     def add_routine(plan_id: int, name: str, weekday: int,
                     notes=None, current_user_roles=None):
         """Agrega una rutina a un plan (solo TRAINER)."""
-        roles = [r.upper() for r in (current_user_roles or [])]
-        if "TRAINER" not in roles:
-            raise PermissionError("🚫 Solo un entrenador puede agregar rutinas.")
 
         if not (1 <= weekday <= 7):
             raise ValueError("⚠️ El día debe estar entre 1 (Lunes) y 7 (Domingo).")

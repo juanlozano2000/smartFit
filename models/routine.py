@@ -21,9 +21,6 @@ class Routine:
         is_admin = "ADMIN" in roles
         is_trainer = "TRAINER" in roles
 
-        if not (is_admin or is_trainer):
-            raise PermissionError("🚫 Solo entrenadores o administradores pueden crear rutinas.")
-
         if not (1 <= weekday <= 7):
             raise ValueError("⚠️ El día de la semana (weekday) debe estar entre 1 y 7.")
 
