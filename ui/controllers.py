@@ -637,8 +637,103 @@ class Controllers:
             for r in rows:
                 print(f"{r['id']}. {r['name']} ({r['start_at']})")
         elif opt == "7":
-            print("\n📊 Generar reporte:")
-            kind = input("Tipo (FINANCE/ATTENDANCE/OCCUPANCY/SALES/PERFORMANCE): ").upper()
-            ReportService.generate_report(self.session["gym_id"], self.session["user_id"], kind, {}, self.session["roles"])
+            while True:
+                print("\n📊 Gestión de Reportes")
+                print("1. Reporte Financiero")
+                print("2. Reporte de Asistencias")
+                print("3. Reporte de Ocupación")
+                print("4. Reporte de Ventas")
+                print("5. Reporte de Rendimiento")
+                print("6. Volver al menú principal")
+                
+                report_opt = input("\nElegí una opción (1-6): ")
+                
+                if report_opt == "1":
+                    print("\n💰 Generando Reporte Financiero")
+                    print("\nPeríodo del reporte:")
+                    print("1. Último mes")
+                    print("2. Último trimestre")
+                    print("3. Último año")
+                    print("4. Personalizado")
+                    
+                    period = input("\nElegí el período (1-4): ")
+                    params = {}
+                    
+                    if period == "4":
+                        start = input("Fecha inicio (YYYY-MM-DD): ")
+                        end = input("Fecha fin (YYYY-MM-DD): ")
+                        params = {"start_date": start, "end_date": end}
+                    
+                    ReportService.generate_report(self.session["gym_id"], self.session["user_id"], "FINANCE", params, self.session["roles"])
+                
+                elif report_opt == "2":
+                    print("\n👥 Generando Reporte de Asistencias")
+                    print("\nTipo de reporte:")
+                    print("1. General")
+                    print("2. Por clase")
+                    print("3. Por miembro")
+                    
+                    type_opt = input("\nElegí el tipo (1-3): ")
+                    params = {"type": type_opt}
+                    
+                    if type_opt == "2":
+                        classes = ClassService.list_classes_for_user(self.session["gym_id"], "ADMIN")
+                        for c in classes:
+                            print(f"{c['id']}. {c['name']}")
+                        class_id = input("\nID de la clase: ")
+                        params["class_id"] = class_id
+                    elif type_opt == "3":
+                        members = User.list_users_by_role("Miembro", self.session["gym_id"])
+                        for m in members:
+                            print(f"{m['id']}. {m['full_name']}")
+                        member_id = input("\nID del miembro: ")
+                        params["member_id"] = member_id
+                    
+                    ReportService.generate_report(self.session["gym_id"], self.session["user_id"], "ATTENDANCE", params, self.session["roles"])
+                
+                elif report_opt == "3":
+                    print("\n📈 Generando Reporte de Ocupación")
+                    print("\nVista:")
+                    print("1. Por día")
+                    print("2. Por semana")
+                    print("3. Por mes")
+                    
+                    view = input("\nElegí la vista (1-3): ")
+                    params = {"view": view}
+                    
+                    ReportService.generate_report(self.session["gym_id"], self.session["user_id"], "OCCUPANCY", params, self.session["roles"])
+                
+                elif report_opt == "4":
+                    print("\n💎 Generando Reporte de Ventas")
+                    print("\nAgrupar por:")
+                    print("1. Membresías")
+                    print("2. Método de pago")
+                    print("3. Período")
+                    
+                    group = input("\nElegí agrupación (1-3): ")
+                    params = {"group": group}
+                    
+                    ReportService.generate_report(self.session["gym_id"], self.session["user_id"], "SALES", params, self.session["roles"])
+                
+                elif report_opt == "5":
+                    print("\n🎯 Generando Reporte de Rendimiento")
+                    print("\nEntidad a evaluar:")
+                    print("1. Entrenadores")
+                    print("2. Clases")
+                    print("3. Membresías")
+                    
+                    entity = input("\nElegí entidad (1-3): ")
+                    params = {"entity": entity}
+                    
+                    ReportService.generate_report(self.session["gym_id"], self.session["user_id"], "PERFORMANCE", params, self.session["roles"])
+                
+                elif report_opt == "6":
+                    break
+                
+                else:
+                    print("⚠️ Opción no válida")
+                
+                input("\nPresiona Enter para continuar...")
+                
         else:
             print("⚠️ Opción no reconocida.")
