@@ -87,7 +87,7 @@ def ask_phone(prompt: str = "Teléfono (solo números)") -> str:
         else:
             return val
 
-def ask_password(prompt: str = "Contraseña (mínimo 8 caracteres)") -> str:
+def ask_password(prompt: str = "Contraseña (mínimo 8 caracteres, 1 mayúscula, 1 número, 1 carácter especial)") -> str:
     """
     Pide contraseña y aplica validaciones básicas:
     - Mínimo 8 caracteres

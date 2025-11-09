@@ -32,8 +32,8 @@ def main():
                 full = ask_text("Nombre completo", min_len=3)
                 dni = ask_text("DNI")
                 phone = ask_text("Teléfono")
-                pwd = ask_password("Contraseña (mínimo 8 caracteres)")
-                gym_id = ask_int("ID del gimnasio (por ahora 1)", min_value=1)
+                pwd = ask_password("Contraseña (mínimo 8 caracteres, 1 mayúscula, 1 número, 1 carácter especial)")
+                gym_id = ask_int("ID del gimnasio", min_value=1)
                 role = ask_text("Sos Profesor o Miembro?")
                 if role.upper() == "PROFESOR":
                     role_profesor = "TRAINER"
