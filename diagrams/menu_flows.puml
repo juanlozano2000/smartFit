@@ -1,0 +1,133 @@
+@startuml Admin Flow
+title Flujo de Administrador SmartFit
+
+start
+:Login como Admin;
+
+while (Menu Admin) is (Continuar)
+  switch (Opción)
+  case (1)
+    :Gestionar Gimnasios;
+    note right
+      - Listar gimnasios
+      - Crear gimnasio
+      - Editar gimnasio
+      - Eliminar gimnasio
+    end note
+  case (2)
+    :Gestionar Usuarios;
+    note right
+      - Listar usuarios
+      - Crear usuario
+      - Editar usuario
+      - Desactivar usuario
+    end note
+  case (3)
+    :Gestionar Membresías;
+    note right
+      - Crear membresía
+      - Editar membresía
+      - Desactivar membresía
+    end note
+  case (4)
+    :Asignar Entrenador a Miembro;
+  case (5)
+    :Gestionar Pagos;
+    note right
+      - Registrar pago
+      - Listar pagos
+    end note
+  case (6)
+    :Listar Clases;
+  case (7)
+    :Gestionar Reportes;
+    note right
+      - Generar reporte
+      - Listar reportes
+    end note
+  case (9)
+    :Cerrar Sesión;
+    stop
+  case (0)
+    :Salir del Sistema;
+    stop
+  endswitch
+endwhile
+
+@enduml
+
+@startuml Trainer Flow
+title Flujo de Entrenador SmartFit
+
+start
+:Login como Trainer;
+
+while (Menu Trainer) is (Continuar)
+  switch (Opción)
+  case (1)
+    :Gestionar Clases;
+    note right
+      - Crear clase
+      - Listar mis clases
+    end note
+  case (2)
+    :Ver Reservas de Clase;
+  case (3)
+    :Marcar Asistencia;
+  case (4)
+    :Crear Plan para Miembro;
+  case (5)
+    :Añadir Rutina a Plan;
+  case (6)
+    :Ver Planes Creados;
+  case (7)
+    :Ver Rutinas de Plan;
+  case (9)
+    :Cerrar Sesión;
+    stop
+  case (0)
+    :Salir del Sistema;
+    stop
+  endswitch
+endwhile
+
+@enduml
+
+@startuml Member Flow
+title Flujo de Miembro SmartFit
+
+start
+:Login como Miembro;
+
+while (Menu Miembro) is (Continuar)
+  switch (Opción)
+  case (1)
+    :Ver y Reservar Clases;
+  case (2)
+    :Gestionar Mis Reservas;
+    note right
+      - Ver reservas
+      - Cancelar reservas
+    end note
+  case (3)
+    :Ver Mis Planes de Entrenamiento;
+  case (4)
+    :Ver Mis Rutinas del Plan;
+  case (5)
+    :Gestionar Membresía;
+    note right
+      - Elegir membresía
+      - Cambiar membresía
+    end note
+  case (6)
+    :Ver Mis Pagos;
+  case (9)
+    :Cerrar Sesión;
+    stop
+  case (0)
+    :Salir del Sistema;
+    stop
+  endswitch
+endwhile
+
+@enduml

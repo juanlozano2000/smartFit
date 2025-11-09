@@ -216,26 +216,57 @@ class Booking:
         """
         roles = [r.upper() for r in (current_user_roles or [])]
         is_admin = "ADMIN" in roles
-        is_trainer = "TRAINER" in roles
+        is_trainer = "TRAINER" in roles or "ENTRENADOR" in roles
         is_member = "MEMBER" in roles
 
+
         # Validar trainer propietario si aplica
-        if is_trainer and not Booking._is_trainer_of_class(class_id, current_user_id):
-            raise PermissionError("🚫 No podés ver reservas de clases que no dictás.")
+        if is_trainer:
+            is_owner = Booking._is_trainer_of_class(class_id, current_user_id)
+            if not is_owner:
+                raise PermissionError("🚫 No podés ver reservas de clases que no dictás.")
+        
+
 
         conn = get_connection()
         cur = conn.cursor()
 
         if is_admin or is_trainer:
             cur.execute("""
-                SELECT b.id, b.member_id, u.full_name, b.status, b.booked_at
+                SELECT 
+                    b.id, 
+                    b.member_id, 
+                    u.full_name as member_name,
+                    b.status, 
+                    b.booked_at
                 FROM booking b
                 JOIN user u ON u.id = b.member_id
                 WHERE b.class_id = ?
                 ORDER BY 
-                    CASE b.status WHEN 'BOOKED' THEN 1 WHEN 'WAITLIST' THEN 2 ELSE 3 END,
-                    b.booked_at ASC, b.id ASC
+                    CASE b.status 
+                        WHEN 'BOOKED' THEN 1 
+                        WHEN 'WAITLIST' THEN 2 
+                        ELSE 3 
+                    END,
+                    b.booked_at ASC, 
+                    b.id ASC
             """, (class_id,))
+            rows = cur.fetchall()
+            conn.close()
+            if not rows:
+                return []  # Retorna lista vacía si no hay reservas
+                
+            # Convertir los resultados a una lista de diccionarios con nombres de columnas consistentes
+            result = []
+            for row in rows:
+                result.append({
+                    'id': row['id'],
+                    'member_id': row['member_id'],
+                    'member_name': row['member_name'],
+                    'status': row['status'],
+                    'booked_at': row['booked_at']
+                })
+            return result
         elif is_member:
             # Para members: lista anónima (cuántos BOOKED/WAITLIST) + su propio estado
             cur.execute("""
@@ -257,16 +288,12 @@ class Booking:
 
             conn.close()
             return {
-                "summary": {row["status"]: row["cnt"] for row in summary},
+                "summary": {row["status"]: row["cnt"] for row in summary} if summary else {},
                 "my_status": mine["status"] if mine else None
             }
         else:
             conn.close()
             raise PermissionError("🚫 Rol no autorizado.")
-
-        rows = cur.fetchall()
-        conn.close()
-        return rows
 
     @staticmethod
     def list_by_user(member_id: int, current_user_id=None, current_user_roles=None):

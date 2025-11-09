@@ -81,7 +81,7 @@ def show_admin_menu(user_name: str) -> str:
     header(f"Menú Administrador · Hola, {user_name} 🧑‍💼 ¿Qué deseas hacer hoy?")
     print("1) Gimnasios (listar / crear / editar / eliminar)")
     print("2) Usuarios (listar / crear / editar / desactivar)")
-    print("3) Membresías (crear / editar / desactivar)")
+    print("3) Membresías (listar / crear / editar / desactivar)")
     print("4) Asignar entrenador a miembro")
     print("5) Pagos (registrar / listar)")
     print("6) Clases (listar)")

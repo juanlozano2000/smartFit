@@ -178,7 +178,7 @@ class Controllers:
                     print("\n📋 Mis clases:")
                     classes = ClassService.list_classes_by_trainer(self.session["user_id"])
                     if not classes:
-                        print("❗ No tenés clases asignadas.")
+                        print("❗ No tenés clases asignadas. Por favor cree una clase.")
                     else:
                         for c in classes:
                             print(f"{c['id']}. {c['name']} ({c['start_at']} - {c['end_at']})")
@@ -253,7 +253,7 @@ class Controllers:
                 classes = ClassService.list_classes_by_trainer(self.session["user_id"])
                 
                 if not classes:
-                    print("❗ No tenés clases asignadas.")
+                    print("❗ No tenés clases asignadas. Por favor cree una clase.")
                     input("\nPresiona Enter para volver...")
                     break
                     
@@ -269,6 +269,12 @@ class Controllers:
                 
                 if att_opt == "1":
                     try:
+                        print("\n📅 Lista detallada de clases:")
+                        for c in classes:
+                            print(f"ID: {c['id']} - {c['name']}")
+                            print(f"   📅 {c['start_at']} - {c['end_at']}")
+                            print(f"   📍 Sala: {c['room']}\n")
+
                         cid = int(input("\nIngresá el ID de la clase: "))
                         # Verificar que la clase exista y pertenezca al profesor
                         class_exists = any(c['id'] == cid for c in classes)
@@ -302,7 +308,92 @@ class Controllers:
             while True:
                 print("\n✅ Control de Asistencias")
                 print("\nTus clases disponibles:")
-                print("\nAquí iría la lógica para marcar asistencia (similar a la opción 2)")
+                classes = ClassService.list_classes_by_trainer(self.session["user_id"])
+                
+                if not classes:
+                    print("❗ No tenés clases asignadas. Por favor cree una clase.")
+                    input("\nPresiona Enter para volver...")
+                    break
+                    
+                print("\n📅 Lista detallada de clases:")
+                for c in classes:
+                    print(f"ID: {c['id']} - {c['name']}")
+                    print(f"   📅 {c['start_at']} - {c['end_at']}")
+                    print(f"   📍 Sala: {c['room']}\n")
+                
+                print("\nOpciones:")
+                print("1. Marcar asistencia")
+                print("2. Volver al menú principal")
+                
+                att_opt = input("\nElegí una opción (1-2): ")
+                
+                if att_opt == "1":
+                    try:
+                        cid = int(input("\nIngresá el ID de la clase: "))
+                        # Verificar que la clase exista y pertenezca al profesor
+                        class_exists = any(c['id'] == cid for c in classes)
+                        
+                        if not class_exists:
+                            print("❗ ID de clase inválido o no te pertenece")
+                            continue
+                            
+                        # Obtener la lista de miembros inscriptos a la clase
+                        print("\n📋 Lista de miembros inscriptos:")
+                        bookings = Booking.list_by_class(
+                            class_id=cid,
+                            current_user_id=self.session["user_id"],
+                            current_user_roles=self.session["roles"]
+                        )
+                        
+                        if not bookings:
+                            print("❗ No hay miembros inscriptos en esta clase")
+                            continue
+                            
+                        for b in bookings:
+                            status_icon = "✅" if b['status'] == "BOOKED" else "⏳" if b['status'] == "WAITLIST" else "❌"
+                            print(f"{b['member_id']}. {status_icon} {b['member_name']} - {b['status']}")
+                            
+                        # Marcar asistencia
+                        while True:
+                            member_id = input("\nID del miembro (Enter para terminar): ")
+                            if not member_id:
+                                break
+                                
+                            try:
+                                mid = int(member_id)
+                                # Verificar que el miembro esté inscripto
+                                member_exists = any(b['member_id'] == mid for b in bookings)
+                                
+                                if not member_exists:
+                                    print("❗ ID de miembro inválido o no está inscripto en esta clase")
+                                    continue
+                                    
+                                present = input("¿Presente? (s/n): ").lower() == 's'
+                                # Obtener el booking_id correcto de la lista de reservas
+                                booking = next((b for b in bookings if b['member_id'] == mid), None)
+                                if booking:
+                                    ClassService.mark_attendance(
+                                        booking_id=booking['id'],
+                                        present=present,
+                                        current_user_id=self.session["user_id"],
+                                        current_user_roles=self.session["roles"]
+                                    )
+                                else:
+                                    print("❌ Error: No se encontró la reserva")
+                                
+                            except ValueError:
+                                print("❗ El ID debe ser un número")
+                                
+                    except ValueError:
+                        print("❗ El ID de la clase debe ser un número")
+                        
+                elif att_opt == "2":
+                    break
+                    
+                else:
+                    print("⚠️ Opción no válida")
+                    
+                input("\nPresiona Enter para continuar...")
                 
         elif opt == "4":
             while True:

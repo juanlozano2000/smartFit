@@ -128,14 +128,9 @@ class ClassService:
     # ---------- ATTENDANCE ----------
     @staticmethod
     def mark_attendance(booking_id: int, present: bool,
-                        current_user_roles=None):
+                        current_user_id=None, current_user_roles=None):
         """Marcar asistencia (solo TRAINER o ADMIN)."""
-        roles = [r.upper() for r in (current_user_roles or [])]
-        if not any(r in roles for r in ("TRAINER", "ADMIN")):
-            raise PermissionError("🚫 Solo entrenadores o administradores pueden registrar asistencias.")
-
-        Attendance.create(booking_id, int(present))
-        print("🟢 Asistencia registrada.")
+        Attendance.mark_attendance(booking_id, present, current_user_id, current_user_roles)
 
     @staticmethod
     def list_attendance_by_class(class_id: int):
