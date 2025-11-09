@@ -760,10 +760,11 @@ class Controllers:
                     price_str = input("Nuevo precio: ")
                     
                     # Convertir valores si no están vacíos
+                    name = name if name.strip() else None
                     dur = int(dur_str) if dur_str.strip() else None
                     price = float(price_str) if price_str.strip() else None
                     
-                    MembershipService.admin_update_membership(mid, name, dur, price, self.session["roles"])
+                    MembershipService.admin_update_membership(mid, name, dur, price, None, self.session["roles"])
                     print("✅ Membresía actualizada exitosamente!")
                     
                 elif membership_opt == "4":

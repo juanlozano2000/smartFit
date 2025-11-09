@@ -25,7 +25,7 @@ class MembershipService:
 
     @staticmethod
     def admin_update_membership(membership_id: int, name=None, duration_months=None, price=None, status=None, current_user_roles=None):
-        Membership.update(membership_id, name, duration_months, price, status)
+        Membership.update(membership_id, name, duration_months, price, status, current_user_roles)
 
     @staticmethod
     def admin_deactivate_membership(membership_id: int, current_user_roles=None):

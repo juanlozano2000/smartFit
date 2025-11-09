@@ -12,12 +12,18 @@ class Membership:
     @staticmethod
     def create(gym_id: int, name: str, duration_months: int, price: float, status: str = "ACTIVE", current_user_roles=None):
         """Crea una nueva membresía (solo ADMIN)."""
+        # Validar que sea ADMIN
+        roles = [r.upper() for r in (current_user_roles or [])]
+        if "ADMIN" not in roles:
+            raise PermissionError("🚫 Solo administradores pueden crear membresías.")
 
         if duration_months <= 0:
             raise ValueError("⚠️ La duración debe ser mayor a 0 meses.")
         if price < 0:
             raise ValueError("⚠️ El precio no puede ser negativo.")
-        if status.upper() not in ("ACTIVE", "INACTIVE"):
+
+        status_upper = status.upper() if isinstance(status, str) else status
+        if status_upper not in ("ACTIVE", "INACTIVE"):
             raise ValueError("⚠️ Estado inválido. Use 'ACTIVE' o 'INACTIVE'.")
 
         conn = get_connection()
@@ -47,9 +53,7 @@ class Membership:
     # ---------- UPDATE ----------
     @staticmethod
     def update(membership_id: int, name=None, duration_months=None, price=None, status=None, current_user_roles=None):
-        """Actualiza los campos indicados de una membresía (solo ADMIN)."""
-        if not current_user_roles or "ADMIN" not in [r.upper() for r in current_user_roles]:
-            raise PermissionError("🚫 Solo un usuario con rol ADMIN puede modificar membresías.")
+        """Actualiza los campos indicados de una membresía (solo ADMIN)."""        
 
         conn = get_connection()
         cur = conn.cursor()
@@ -69,11 +73,15 @@ class Membership:
                 raise ValueError("⚠️ El precio no puede ser negativo.")
             fields.append("price = ?")
             values.append(price)
-        if status:
-            if status.upper() not in ("ACTIVE", "INACTIVE"):
-                raise ValueError("⚠️ Estado inválido.")
-            fields.append("status = ?")
-            values.append(status.upper())
+        if status is not None and status != "":  # Solo validar si se proporciona un valor no vacío
+            if isinstance(status, str):
+                status_upper = status.upper()
+                if status_upper not in ("ACTIVE", "INACTIVE"):
+                    raise ValueError("⚠️ Estado inválido.")
+                fields.append("status = ?")
+                values.append(status_upper)
+            else:
+                raise ValueError("⚠️ El estado debe ser un texto ('ACTIVE' o 'INACTIVE').")
 
         if not fields:
             print("⚠️ No se especificaron campos para actualizar.")

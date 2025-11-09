@@ -47,7 +47,7 @@ def show_member_menu(user_name: str) -> str:
     """
     header(f"Menú Miembro · Hola, {user_name} 👋 ¿Qué deseas hacer hoy?")
     print("1) Ver y reservar clases")
-    print("2) Mis reservas (ver / cancelar)")
+    print("2) Mis reservas")
     print("3) Ver mis planes de entrenamiento")
     print("4) Ver mis rutinas del plan")
     print("5) Elegir / cambiar membresía")
