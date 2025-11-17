@@ -112,7 +112,14 @@ class ReportService:
         # ---------- WRITE FILE ----------
         ReportService._ensure_report_dir()
         filepath = os.path.join(ReportService.REPORT_DIR, filename)
+
+        # sqlite3.Row.keys() devuelve una lista, y csv.DictWriter
+        # espera un view de keys que soporte operaciones de conjunto.
+        # Además, csv.DictWriter.writerows necesita mapeos tipo dict.
+        # Convertimos los rows (sqlite3.Row) a diccionarios para
+        # asegurar compatibilidad con csv.DictWriter.
         if rows:
+            rows = [dict(r) for r in rows]
             with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=rows[0].keys())
                 writer.writeheader()
